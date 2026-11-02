@@ -28,6 +28,31 @@ The sensor entity is named **DHCP clients**. Its state is the count of valid lea
 
 This integration reports the current dynamic `leases` list from AdGuard's DHCP status response. It does not count the separate `static_leases` configuration list as active leases.
 
+## Display DHCP clients in Lovelace
+
+To display the DHCP clients in a searchable table, install **Flex Table Card** separately. It is available through HACS as a Lovelace card; it is not included with this integration.
+
+Add a **Manual card** to your dashboard and use the following YAML:
+
+```yaml
+type: custom:flex-table-card
+title: AdGuard DHCP Clients
+entities:
+  include:
+    - sensor.adguard_dhcp_clientliste
+columns:
+  - name: Hostname
+    data: leases.hostname
+  - name: IP
+    data: leases.ip
+  - name: MAC
+    data: leases.mac
+enable_search: true
+sort_by: +IP
+```
+
+Replace `sensor.adguard_dhcp_clientliste` with the entity ID of your DHCP clients sensor if it is different. You can find the entity ID under **Settings → Devices & services → Entities**.
+
 ## Troubleshooting
 
 - Check that the host and port are reachable from Home Assistant.
