@@ -61,4 +61,5 @@ Replace `sensor.adguard_dhcp_clientliste` with the entity ID of your DHCP client
 
 ## Project
 
-Source and issue tracking: https://github.com/it-layer-de/ha-adguard-dhcp-clients
+Source and issue tracking: https://github.com/it-layer-de/ha-adguard-dhcp-clients 
+D.W.
