@@ -1,6 +1,6 @@
 """AdGuard Home control API helpers."""
 from __future__ import annotations
-
+from homeassistant.util import dt as dt_util
 from collections.abc import Mapping
 import ipaddress
 from typing import Any
@@ -59,7 +59,7 @@ def parse_leases(
             if not isinstance(lease, Mapping):
                 continue
 
-            item: dict[str, str] = {}
+            item: dict[str, str | int] = {}
             for key in ("hostname", "ip", "mac"):
                 value = lease.get(key)
                 if isinstance(value, (str, int, float)) and str(value).strip():
@@ -67,16 +67,32 @@ def parse_leases(
 
             if not item.get("ip") and not item.get("mac"):
                 continue
+
+            if source == "static_leases":
+                item["expires"] = "Statischer Eintrag"
+            else:
+                expires = lease.get("expires")
+                parsed = dt_util.parse_datetime(str(expires)) if expires else None
+                if parsed is not None:
+                    local_expires = dt_util.as_local(parsed)
+                    item["expires"] = local_expires.strftime("%Y.%m.%d %H:%M:%S")
+                    item["expires_sort"] = int(local_expires.timestamp())
+                else:
+                    item["expires"] = "Statischer Eintrag"
+
             if not include_ipv6 and item.get("ip"):
                 try:
-                    is_ipv6 = ipaddress.ip_address(item["ip"]).version == 6
+                    is_ipv6 = ipaddress.ip_address(str(item["ip"])).version == 6
                 except ValueError:
                     is_ipv6 = False
                 if is_ipv6:
                     continue
 
-            # Prefer MAC for deduplication; fall back to IP.
-            identity = f"mac:{item['mac'].lower()}" if item.get("mac") else f"ip:{item['ip']}"
+            identity = (
+                f"mac:{str(item['mac']).lower()}"
+                if item.get("mac")
+                else f"ip:{item['ip']}"
+            )
             if identity in seen:
                 continue
 

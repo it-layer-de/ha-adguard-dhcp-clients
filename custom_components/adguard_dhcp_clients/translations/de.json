@@ -1,0 +1,37 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Mit AdGuard Home verbinden",
+        "description": "Gib die Adresse und Zugangsdaten für AdGuard Home ein. Der Standard-API-Port ist 3000 oder 80 oder 443.",
+        "data": {
+          "host": "Hostname oder IP-Adresse",
+          "port": "Port",
+          "username": "Benutzername",
+          "password": "Passwort",
+          "use_https": "HTTPS verwenden",
+          "include_ipv6": "IPv6-Leases einbeziehen"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zur AdGuard-Home-API nicht möglich oder Anmeldung fehlgeschlagen.",
+      "invalid_host": "Gib einen Hostnamen oder eine IP-Adresse ohne Schema oder Pfad ein.",
+      "unknown": "Ein unerwarteter Fehler ist aufgetreten."
+    },
+    "abort": {
+      "already_configured": "Dieser AdGuard-Home-Server ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DHCP-Client-Optionen",
+        "description": "Lege fest, ob IPv6-Leases im Sensor angezeigt werden.",
+        "data": {
+          "include_ipv6": "IPv6-Leases einbeziehen"
+        }
+      }
+    }
+  }
+}
