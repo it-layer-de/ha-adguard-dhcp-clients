@@ -43,20 +43,34 @@ async def async_fetch_status(
 
 
 def parse_leases(payload: Mapping[str, Any]) -> list[dict[str, str]]:
-    """Normalize DHCP leases, ignoring malformed entries and empty fields."""
-    leases = payload.get("leases", [])
-    if not isinstance(leases, list):
-        return []
+    """Combine dynamic and static DHCP leases without duplicates."""
     normalized: list[dict[str, str]] = []
-    for lease in leases:
-        if not isinstance(lease, Mapping):
+    seen: set[str] = set()
+
+    for source in ("leases", "static_leases"):
+        leases = payload.get(source, [])
+        if not isinstance(leases, list):
             continue
-        item: dict[str, str] = {}
-        for key in ("hostname", "ip", "mac"):
-            value = lease.get(key)
-            if isinstance(value, (str, int, float)) and str(value).strip():
-                item[key] = str(value).strip()
-        # A lease without either an IP or MAC is not a usable client record.
-        if "ip" in item or "mac" in item:
+
+        for lease in leases:
+            if not isinstance(lease, Mapping):
+                continue
+
+            item: dict[str, str] = {}
+            for key in ("hostname", "ip", "mac"):
+                value = lease.get(key)
+                if isinstance(value, (str, int, float)) and str(value).strip():
+                    item[key] = str(value).strip()
+
+            if not item.get("ip") and not item.get("mac"):
+                continue
+
+            # Prefer MAC for deduplication; fall back to IP.
+            identity = f"mac:{item['mac'].lower()}" if item.get("mac") else f"ip:{item['ip']}"
+            if identity in seen:
+                continue
+
+            seen.add(identity)
             normalized.append(item)
+
     return normalized
