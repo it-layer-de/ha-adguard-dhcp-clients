@@ -9,7 +9,8 @@
           "port": "Port",
           "username": "Username",
           "password": "Password",
-          "use_https": "Use HTTPS"
+          "use_https": "Use HTTPS",
+          "include_ipv6": "Include IPv6 leases"
         }
       }
     },
@@ -20,6 +21,17 @@
     },
     "abort": {
       "already_configured": "This AdGuard Home server is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DHCP client options",
+        "description": "Choose whether IPv6 leases are included in the sensor.",
+        "data": {
+          "include_ipv6": "Include IPv6 leases"
+        }
+      }
     }
   }
 }

@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import AdGuardDHCPApiError, async_fetch_status, make_base_url
-from .const import CONF_USE_HTTPS, DOMAIN
+from .const import CONF_INCLUDE_IPV6, CONF_USE_HTTPS, DEFAULT_INCLUDE_IPV6, DOMAIN
 
 
 def _schema(user_input: dict | None = None) -> vol.Schema:
@@ -23,6 +23,10 @@ def _schema(user_input: dict | None = None) -> vol.Schema:
             vol.Required(CONF_USERNAME, default=values.get(CONF_USERNAME, "")): str,
             vol.Required(CONF_PASSWORD, default=values.get(CONF_PASSWORD, "")): str,
             vol.Optional(CONF_USE_HTTPS, default=values.get(CONF_USE_HTTPS, False)): bool,
+            vol.Optional(
+                CONF_INCLUDE_IPV6,
+                default=values.get(CONF_INCLUDE_IPV6, DEFAULT_INCLUDE_IPV6),
+            ): bool,
         }
     )
 
@@ -65,3 +69,29 @@ class AdGuardDHCPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=_schema(user_input), errors=errors
         )
+
+    @staticmethod
+    def async_get_options_flow(config_entry):
+        """Create the options flow for an existing config entry."""
+        return AdGuardDHCPOptionsFlow(config_entry)
+
+
+class AdGuardDHCPOptionsFlow(config_entries.OptionsFlow):
+    """Allow changing lease display preferences after setup."""
+
+    def __init__(self, config_entry) -> None:
+        self._config_entry = config_entry
+
+    async def async_step_init(self, user_input: dict | None = None):
+        """Manage the IPv6 lease inclusion preference."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        current = self._config_entry.options.get(
+            CONF_INCLUDE_IPV6,
+            self._config_entry.data.get(CONF_INCLUDE_IPV6, DEFAULT_INCLUDE_IPV6),
+        )
+        schema = vol.Schema(
+            {vol.Required(CONF_INCLUDE_IPV6, default=current): bool}
+        )
+        return self.async_show_form(step_id="init", data_schema=schema)

@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import parse_leases
-from .const import DOMAIN
+from .const import CONF_INCLUDE_IPV6, DEFAULT_INCLUDE_IPV6, DOMAIN
 from .coordinator import AdGuardDHCPCoordinator
 
 
@@ -42,9 +42,19 @@ class AdGuardDHCPLeaseCountSensor(CoordinatorEntity[AdGuardDHCPCoordinator], Sen
     @property
     def native_value(self) -> int:
         """Return the number of usable DHCP lease records."""
-        return len(parse_leases(self.coordinator.data))
+        return len(self._leases)
 
     @property
     def extra_state_attributes(self) -> dict[str, list[dict[str, str]]]:
         """Return each lease's hostname, IP address, and MAC address when present."""
-        return {"leases": parse_leases(self.coordinator.data)}
+        return {"leases": self._leases}
+
+    @property
+    def _leases(self) -> list[dict[str, str]]:
+        """Return leases using this entry's IPv6 preference."""
+        entry = self.coordinator.entry
+        include_ipv6 = entry.options.get(
+            CONF_INCLUDE_IPV6,
+            entry.data.get(CONF_INCLUDE_IPV6, DEFAULT_INCLUDE_IPV6),
+        )
+        return parse_leases(self.coordinator.data, include_ipv6=include_ipv6)

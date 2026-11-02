@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import ipaddress
 from typing import Any
 
 import aiohttp
@@ -42,8 +43,10 @@ async def async_fetch_status(
     return dict(payload)
 
 
-def parse_leases(payload: Mapping[str, Any]) -> list[dict[str, str]]:
-    """Combine dynamic and static DHCP leases without duplicates."""
+def parse_leases(
+    payload: Mapping[str, Any], include_ipv6: bool = True
+) -> list[dict[str, str]]:
+    """Combine dynamic and static DHCP leases, optionally excluding IPv6."""
     normalized: list[dict[str, str]] = []
     seen: set[str] = set()
 
@@ -64,6 +67,13 @@ def parse_leases(payload: Mapping[str, Any]) -> list[dict[str, str]]:
 
             if not item.get("ip") and not item.get("mac"):
                 continue
+            if not include_ipv6 and item.get("ip"):
+                try:
+                    is_ipv6 = ipaddress.ip_address(item["ip"]).version == 6
+                except ValueError:
+                    is_ipv6 = False
+                if is_ipv6:
+                    continue
 
             # Prefer MAC for deduplication; fall back to IP.
             identity = f"mac:{item['mac'].lower()}" if item.get("mac") else f"ip:{item['ip']}"
