@@ -1,0 +1,25 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to AdGuard Home",
+        "description": "Enter the AdGuard Home address and credentials. The default API port is 3000.",
+        "data": {
+          "host": "Host or IP address",
+          "port": "Port",
+          "username": "Username",
+          "password": "Password",
+          "use_https": "Use HTTPS"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect or authenticate with the AdGuard Home API.",
+      "invalid_host": "Enter a host name or IP address without a scheme or path.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This AdGuard Home server is already configured."
+    }
+  }
+}
