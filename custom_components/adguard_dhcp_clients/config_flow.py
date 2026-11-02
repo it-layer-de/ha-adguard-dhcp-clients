@@ -17,7 +17,7 @@ def _schema(user_input: dict | None = None) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(CONF_HOST, default=values.get(CONF_HOST, "")): str,
-            vol.Required(CONF_PORT, default=values.get(CONF_PORT, 3000)): vol.All(
+            vol.Required(CONF_PORT, default=values.get(CONF_PORT, 80)): vol.All(
                 vol.Coerce(int), vol.Range(min=1, max=65535)
             ),
             vol.Required(CONF_USERNAME, default=values.get(CONF_USERNAME, "")): str,

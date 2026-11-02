@@ -29,7 +29,7 @@
         "title": "DHCP-Client-Optionen",
         "description": "Lege fest, ob IPv6-Leases im Sensor angezeigt werden.",
         "data": {
-          "include_ipv6": "IPv6-Leases einbeziehen"
+          "include_ipv6": "IPv6-Leases einbeziehen" 
         }
       }
     }
